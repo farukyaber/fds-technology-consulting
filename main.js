@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== CONTACT FORM =====
   const contactForm = document.getElementById('contactForm');
 
-  contactForm.addEventListener('submit', (e) => {
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = contactForm.querySelector('.btn-form');
     const originalContent = btn.innerHTML;
@@ -179,14 +179,27 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.disabled = true;
     btn.style.opacity = '0.8';
 
-    // Simulate sending
-    setTimeout(() => {
-      btn.innerHTML = originalContent;
-      btn.disabled = false;
-      btn.style.opacity = '';
-      contactForm.reset();
-      showToast('✓ Mensaje enviado correctamente. Le responderemos pronto.');
-    }, 2000);
+    const formData = new FormData(contactForm);
+
+    try {
+      const response = await fetch('https://formspree.io/f/xwvjqand', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (response.ok) {
+        contactForm.reset();
+        showToast('✓ Mensaje enviado correctamente. Le responderemos pronto.');
+      } else {
+        showToast('⚠ Hubo un error al enviar. Intente nuevamente.');
+      }
+    } catch (err) {
+      showToast('⚠ Error de conexión. Intente nuevamente.');
+    }
+
+    btn.innerHTML = originalContent;
+    btn.disabled = false;
+    btn.style.opacity = '';
   });
 
   // ===== TOAST =====
